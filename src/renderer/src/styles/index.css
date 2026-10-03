@@ -1,0 +1,133 @@
+@import 'tailwindcss';
+
+/* Design tokens (SPEC §15). Light first, dark via system appearance. */
+:root {
+  color-scheme: light dark;
+  --surface: #ffffff;
+  --grid: #ececec;
+  --ink: #1d1d1f;
+  --muted: #8e8e93;
+  --card: #e8e8e8;
+  --card-hover: #dedede;
+  --accent: #a23bb0;
+  --accent-ink: #ffffff;
+  --running-bg: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  --running-hover: color-mix(in srgb, var(--accent) 20%, var(--surface));
+  --now: #ff3b30;
+  --weekend: rgb(0 0 0 / 0.018);
+  --control: rgb(0 0 0 / 0.05);
+  --control-hover: rgb(0 0 0 / 0.09);
+  --pill-bg: rgb(28 28 30 / 0.92);
+  --pill-ink: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #1e1e1e;
+    --grid: #2e2e2e;
+    --ink: #f5f5f7;
+    --muted: #98989d;
+    --card: #3a3a3c;
+    --card-hover: #444446;
+    --accent: #d27be0;
+    --accent-ink: #1e1e1e;
+    --running-bg: color-mix(in srgb, var(--accent) 24%, var(--surface));
+    --running-hover: color-mix(in srgb, var(--accent) 30%, var(--surface));
+    --now: #ff453a;
+    --weekend: rgb(255 255 255 / 0.02);
+    --control: rgb(255 255 255 / 0.07);
+    --control-hover: rgb(255 255 255 / 0.12);
+    --pill-bg: rgb(242 242 247 / 0.95);
+    --pill-ink: #1c1c1e;
+  }
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-grid: var(--grid);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-running: var(--running-bg);
+  --color-running-hover: var(--running-hover);
+  --color-now: var(--now);
+  --color-control: var(--control);
+  --color-control-hover: var(--control-hover);
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+/* Keep the resize cursor while the pointer leaves the handle mid-drag. */
+body.resizing,
+body.resizing * {
+  cursor: ns-resize !important;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.app-drag {
+  -webkit-app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Hour grid lines on day columns. */
+.hour-grid {
+  background-image: linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 100% var(--hour-height);
+}
+
+.hour-grid.weekend {
+  background-image:
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px),
+    linear-gradient(var(--weekend), var(--weekend));
+  background-size:
+    100% var(--hour-height),
+    100% 100%;
+}
+
+/* Resize grips appear on hover. */
+.entry .grip {
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.entry:hover .grip,
+.entry.active .grip {
+  opacity: 1;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.pulse {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
