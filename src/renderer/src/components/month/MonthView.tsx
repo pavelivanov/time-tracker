@@ -11,7 +11,7 @@ interface MonthViewProps {
 }
 
 /** Calendar days with each day's total, plus a per-row week total (SPEC §10). */
-const COLS = 'repeat(7, minmax(0, 1fr)) 96px'
+const COLS = 'repeat(7, minmax(0, 1fr)) 120px'
 
 export function MonthView({ anchor, entries, now, onOpenDay }: MonthViewProps): React.JSX.Element {
   const weeks = monthWeeks(anchor)
@@ -97,10 +97,15 @@ function WeekTotal({
   return (
     <div
       data-testid="month-week-total"
-      className={cx('flex items-start justify-end border-l border-grid p-2.5', top && 'border-t')}
+      className={cx(
+        'flex flex-col items-start gap-1 border-l border-grid p-2.5',
+        top && 'border-t'
+      )}
     >
+      {/* Spacer matching the date line, so the week total aligns with day totals. */}
+      <span className="h-6" />
       {total > 0 && (
-        <span className="tabular flex h-6 items-center px-1.5 text-[15px] font-semibold text-muted">
+        <span className="tabular whitespace-nowrap px-1.5 text-[15px] font-semibold">
           {formatDuration(total)}
         </span>
       )}
