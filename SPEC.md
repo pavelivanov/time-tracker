@@ -361,7 +361,8 @@ Shows only calendar days with each day's total time, if any (Q5).
 - Cell: date number; **day total** in accent color **only if > 0** — days without tracked time show just the date.
 - Today: date number in an accent circle (same as Week view).
 - Toolbar: month title + **month total**.
-- Nothing else: no entry blocks, strips, lists, tooltips, or week-total column. Weekly totals live in the Week view toolbar.
+- Week-total column on the right of each row: sum of that row's in-month day totals (hidden when 0). Out-of-month days are excluded so the column adds up to the month total.
+- Nothing else: no entry blocks, strips, lists, or tooltips.
 - Click a day → Week view of the week containing it (navigation, not creation). No editing in this view.
 
 ### 10.2 Acceptance
@@ -370,6 +371,7 @@ Shows only calendar days with each day's total time, if any (Q5).
 - **AC-M2** Day totals match the Week view for the same days.
 - **AC-M3** Clicking a day opens the Week view containing it.
 - **AC-M4** Days with zero time show only the date; out-of-month cells are blank.
+- **AC-M5** Each row's week total = sum of its in-month day totals; week totals sum to the month total.
 
 ---
 

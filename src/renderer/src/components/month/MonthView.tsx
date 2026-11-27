@@ -10,25 +10,33 @@ interface MonthViewProps {
   onOpenDay(day: number): void
 }
 
-/** Calendar days with each day's total, nothing else (SPEC §10). */
+/** Calendar days with each day's total, plus a per-row week total (SPEC §10). */
+const COLS = 'repeat(7, minmax(0, 1fr)) 120px'
+
 export function MonthView({ anchor, entries, now, onOpenDay }: MonthViewProps): React.JSX.Element {
   const weeks = monthWeeks(anchor)
   const today = dayStartOf(now)
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="grid grid-cols-7 border-b border-grid">
+      <div className="grid border-b border-grid" style={{ gridTemplateColumns: COLS }}>
         {weekDays(anchor).map((d) => (
           <div key={d} className="px-3 py-2 text-[12px] font-medium text-muted">
             {weekdayShort(d)}
           </div>
         ))}
+        <div className="border-l border-grid px-3 py-2 text-[12px] font-medium text-muted">
+          Week
+        </div>
       </div>
       <div
-        className="grid min-h-0 flex-1 grid-cols-7"
-        style={{ gridTemplateRows: `repeat(${weeks.length}, minmax(0, 1fr))` }}
+        className="grid min-h-0 flex-1"
+        style={{
+          gridTemplateColumns: COLS,
+          gridTemplateRows: `repeat(${weeks.length}, minmax(0, 1fr))`
+        }}
       >
-        {weeks.flatMap((week, w) =>
-          week.map((day, i) => {
+        {weeks.flatMap((week, w) => [
+          ...week.map((day, i) => {
             const edges = cx('border-grid', i > 0 && 'border-l', w > 0 && 'border-t')
             if (day === null) return <div key={`blank-${w}-${i}`} className={edges} />
             const total = totalMs(entries, day, nextDayStart(day), now)
@@ -62,9 +70,45 @@ export function MonthView({ anchor, entries, now, onOpenDay }: MonthViewProps): 
                 )}
               </button>
             )
-          })
-        )}
+          }),
+          <WeekTotal key={`week-${w}`} week={week} entries={entries} now={now} top={w > 0} />
+        ])}
       </div>
+    </div>
+  )
+}
+
+/** Sum of the row's in-month days only, so the column adds up to the month total. */
+function WeekTotal({
+  week,
+  entries,
+  now,
+  top
+}: {
+  week: readonly (number | null)[]
+  entries: readonly Entry[]
+  now: number
+  top: boolean
+}): React.JSX.Element {
+  const total = week.reduce<number>(
+    (sum, day) => (day === null ? sum : sum + totalMs(entries, day, nextDayStart(day), now)),
+    0
+  )
+  return (
+    <div
+      data-testid="month-week-total"
+      className={cx(
+        'flex flex-col items-start gap-1 border-l border-grid p-2.5',
+        top && 'border-t'
+      )}
+    >
+      {/* Spacer matching the date line, so the week total aligns with day totals. */}
+      <span className="h-6" />
+      {total > 0 && (
+        <span className="tabular whitespace-nowrap px-1.5 text-[15px] font-semibold">
+          {formatDuration(total)}
+        </span>
+      )}
     </div>
   )
 }
