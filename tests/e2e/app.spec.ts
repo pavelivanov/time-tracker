@@ -11,7 +11,7 @@ import {
 } from '@playwright/test'
 import type { Entry } from '../../src/shared/types'
 import { formatDuration } from '../../src/shared/format'
-import { totalMs } from '../../src/shared/time'
+import { monthWeeks, nextDayStart, totalMs } from '../../src/shared/time'
 
 // Fixture data lives in last week so it is fully in the past whatever "now" is.
 const lastMonday = addWeeks(startOfWeek(new Date(), { weekStartsOn: 1 }), -1)
@@ -130,7 +130,7 @@ test('AC-R5: Esc cancels; dragging the card body does nothing', async () => {
   expect(saved().find((e) => e.id === 'fri')).toEqual(ENTRIES[3])
 })
 
-test('AC-M1..M4: month shows day totals only; a day opens its week', async () => {
+test('AC-M1..M5: month shows day totals only; a day opens its week', async () => {
   await page.getByRole('tab', { name: 'month' }).click()
   const month = startOfMonth(day(2)).getTime()
   const monthEnd = addMonths(month, 1).getTime()
@@ -142,6 +142,17 @@ test('AC-M1..M4: month shows day totals only; a day opens its week', async () =>
   if (day(0) >= month) await expect(cell(0).getByTestId('day-total')).toHaveText('3h')
   await expect(cell(2).getByTestId('day-total')).toHaveText('1h 15m')
   if (day(3) < monthEnd) await expect(cell(3).getByTestId('day-total')).toHaveCount(0)
+  // AC-M5: week totals add up to the month total.
+  const expected = monthWeeks(month).map((week) => {
+    const ms = week.reduce<number>(
+      (sum, d) => (d === null ? sum : sum + totalMs(ENTRIES, d, nextDayStart(d), Date.now())),
+      0
+    )
+    return ms > 0 ? formatDuration(ms) : ''
+  })
+  const weekTotals = page.getByTestId('month-week-total')
+  await expect(weekTotals).toHaveText(expected)
+  expect(expected.some(Boolean)).toBe(true)
   await page.screenshot({ path: 'test-results/screens/month.png' })
 
   await cell(2).click()
